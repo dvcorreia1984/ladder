@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Player } from '@/types';
+import { useI18n } from '@/lib/i18n/context';
 import ChallengeModal from './ChallengeModal';
 
 interface LadderScreenProps {
@@ -12,6 +13,7 @@ interface LadderScreenProps {
 }
 
 export default function LadderScreen({ players, onChallenge, onMatchRecorded, kioskMode }: LadderScreenProps) {
+  const { t } = useI18n();
   const [selectedChallenger, setSelectedChallenger] = useState<Player | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<Player | null>(null);
   const getRankEmoji = (rank: number) => {
@@ -28,13 +30,13 @@ export default function LadderScreen({ players, onChallenge, onMatchRecorded, ki
   return (
     <div className="bg-white rounded-lg shadow-xl p-6">
       <h1 className={`${kioskMode ? 'text-5xl' : 'text-3xl'} font-bold mb-6 text-center text-gray-800`}>
-        Current Ladder
+        {t('ladderTitle')}
       </h1>
       
       {players.length === 0 ? (
         <div className="text-center py-12">
-          <p className={`${textSize} text-gray-500 mb-4`}>No players yet.</p>
-          <p className={`${textSize} text-gray-400`}>Add players in Admin to get started.</p>
+          <p className={`${textSize} text-gray-500 mb-4`}>{t('ladderNoPlayers')}</p>
+          <p className={`${textSize} text-gray-400`}>{t('ladderAddPlayers')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -73,12 +75,12 @@ export default function LadderScreen({ players, onChallenge, onMatchRecorded, ki
                         }}
                         className={`${buttonSize} bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
                       >
-                        Challenge #{targetPlayer.rank} {targetPlayer.name}
+                        {t('ladderChallenge')} #{targetPlayer.rank} {targetPlayer.name}
                       </button>
                     ))
                   ) : (
                     <span className={`${textSize} text-gray-500 italic`}>
-                      No challenges available
+                      {t('ladderNoChallenges')}
                     </span>
                   )}
                 </div>

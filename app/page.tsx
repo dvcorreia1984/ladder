@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Player, Match } from '@/types';
 import { getPlayers, getMatches } from '@/lib/api';
+import { useI18n } from '@/lib/i18n/context';
 import LadderScreen from '@/components/LadderScreen';
 import RecordMatchScreen from '@/components/RecordMatchScreen';
 import HistoryScreen from '@/components/HistoryScreen';
@@ -11,6 +12,7 @@ import AdminScreen from '@/components/AdminScreen';
 type Screen = 'ladder' | 'record' | 'history' | 'admin';
 
 export default function Home() {
+  const { t, language, setLanguage } = useI18n();
   const [currentScreen, setCurrentScreen] = useState<Screen>('ladder');
   const [kioskMode, setKioskMode] = useState(false);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -29,6 +31,11 @@ export default function Home() {
 
     loadData();
   }, []);
+
+  useEffect(() => {
+    // Update HTML lang attribute when language changes
+    document.documentElement.lang = language;
+  }, [language]);
 
   const loadData = async () => {
     try {
@@ -82,7 +89,7 @@ export default function Home() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            📊 Ladder
+            {t('navLadder')}
           </button>
           <button
             onClick={() => setCurrentScreen('record')}
@@ -92,7 +99,7 @@ export default function Home() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            🏆 Record Match
+            {t('navRecordMatch')}
           </button>
           <button
             onClick={() => setCurrentScreen('history')}
@@ -102,7 +109,7 @@ export default function Home() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            📜 History
+            {t('navHistory')}
           </button>
           <button
             onClick={() => setCurrentScreen('admin')}
@@ -112,7 +119,7 @@ export default function Home() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            ⚙️ Admin
+            {t('navAdmin')}
           </button>
           <button
             onClick={handleToggleKioskMode}
@@ -122,8 +129,18 @@ export default function Home() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            {kioskMode ? '🖥️ Exit Kiosk' : '🖥️ Kiosk Mode'}
+            {kioskMode ? t('navExitKiosk') : t('navKioskMode')}
           </button>
+          <div className="relative">
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as 'en' | 'af')}
+              className={`${buttonClass} bg-gray-200 text-gray-700 hover:bg-gray-300 border-0 cursor-pointer appearance-none pr-8`}
+            >
+              <option value="en">🇬🇧 English</option>
+              <option value="af">🇿🇦 Afrikaans</option>
+            </select>
+          </div>
         </div>
       </nav>
 
