@@ -8,16 +8,17 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+/* Override dark mode to keep text black for readability */
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --foreground-rgb: 0, 0, 0; /* Keep text black even in dark mode */
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
   }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
+  color: rgb(0, 0, 0) !important; /* Force black text for readability */
   background: linear-gradient(
       to bottom,
       transparent,
@@ -39,4 +40,31 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* Ensure select dropdowns and options have readable text */
+select,
+select:focus,
+select:active {
+  color: rgb(17, 24, 39) !important; /* text-gray-900 */
+  background-color: white !important;
+}
+
+select option,
+select option:checked,
+select option:hover,
+select option:focus {
+  color: rgb(17, 24, 39) !important; /* text-gray-900 */
+  background-color: white !important;
+}
+
+/* Additional specificity for dropdown lists */
+select optgroup option {
+  color: rgb(17, 24, 39) !important;
+  background-color: white !important;
+}
+
+/* Ensure text elements inherit black from body but allow Tailwind color classes to override */
+p, h1, h2, h3, h4, h5, h6, span, div, label, td, th, li {
+  color: inherit;
 }

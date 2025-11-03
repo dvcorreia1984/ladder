@@ -6,7 +6,7 @@ import { createMatch, processMatchResult } from '@/lib/api';
 
 interface RecordMatchScreenProps {
   players: Player[];
-  onMatchRecorded: () => void;
+  onMatchRecorded: () => void | Promise<void>;
   kioskMode: boolean;
 }
 
@@ -23,10 +23,41 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
     if (players.length > 0 && !winnerId) {
       setWinnerId(players[0].id);
     }
-    if (players.length > 1 && !loserId) {
-      setLoserId(players[1].id);
+  }, [players, winnerId]);
+
+  // Set initial loser when winner is set
+  useEffect(() => {
+    if (winnerId && !loserId) {
+      const winner = players.find(p => p.id === winnerId);
+      if (winner) {
+        // Find the first challengable player (up to 3 ranks above)
+        const challengablePlayers = players.filter(p => 
+          p.id !== winnerId &&
+          p.rank < winner.rank && 
+          (winner.rank - p.rank) <= 3
+        );
+        if (challengablePlayers.length > 0) {
+          setLoserId(challengablePlayers[0].id);
+        }
+      }
     }
-  }, [players]);
+  }, [winnerId, players, loserId]);
+
+  // Clear loser selection when winner changes and current loser is no longer valid
+  useEffect(() => {
+    if (winnerId && loserId) {
+      const winner = players.find(p => p.id === winnerId);
+      const loser = players.find(p => p.id === loserId);
+      
+      if (winner && loser) {
+        // Check if the current loser is still a valid challenge option
+        const isValidChallenge = loser.rank < winner.rank && (winner.rank - loser.rank) <= 3;
+        if (!isValidChallenge) {
+          setLoserId('');
+        }
+      }
+    }
+  }, [winnerId, players, loserId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +74,25 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
       return;
     }
 
+    // Challenge restriction: winner can only challenge up to 3 players above them
+    const winner = players.find(p => p.id === winnerId);
+    const loser = players.find(p => p.id === loserId);
+
+    if (winner && loser) {
+      // Winner's rank should be higher (lower rank number = higher position)
+      // So loser should have a lower rank number (higher position)
+      // And the difference should be at most 3
+      if (loser.rank > winner.rank) {
+        setError('You cannot challenge players ranked below you');
+        return;
+      }
+      
+      if (winner.rank - loser.rank > 3) {
+        setError('You can only challenge players up to 3 ranks above you');
+        return;
+      }
+    }
+
     const wScore = parseInt(winnerScore);
     const lScore = parseInt(loserScore);
 
@@ -57,16 +107,20 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
       const match = await createMatch(winnerId, loserId, wScore, lScore);
       await processMatchResult(match);
       
+      // Immediately refresh the ladder data
+      await onMatchRecorded();
+      
       setSuccess(true);
       setWinnerScore('');
       setLoserScore('');
       
+      // Clear success message after a short delay
       setTimeout(() => {
-        onMatchRecorded();
         setSuccess(false);
       }, 2000);
     } catch (err: any) {
       setError(err.message || 'Failed to record match');
+      console.error('Error recording match:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -102,12 +156,13 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
           <select
             value={winnerId}
             onChange={(e) => setWinnerId(e.target.value)}
-            className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500`}
+            className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 bg-white`}
             disabled={isSubmitting}
+            style={{ color: 'rgb(17, 24, 39)' }}
           >
-            <option value="">Select winner...</option>
+            <option value="" style={{ color: 'rgb(17, 24, 39)', backgroundColor: 'white' }}>Select winner...</option>
             {players.map(player => (
-              <option key={player.id} value={player.id}>
+              <option key={player.id} value={player.id} style={{ color: 'rgb(17, 24, 39)', backgroundColor: 'white' }}>
                 {player.name} (Rank #{player.rank})
               </option>
             ))}
@@ -123,7 +178,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
             value={winnerScore}
             onChange={(e) => setWinnerScore(e.target.value)}
             min="0"
-            className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500`}
+            className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 bg-white`}
             disabled={isSubmitting}
             required
           />
@@ -131,21 +186,53 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
 
         <div>
           <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
-            Loser
+            Opponent
           </label>
           <select
             value={loserId}
             onChange={(e) => setLoserId(e.target.value)}
-            className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500`}
+            className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-gray-900 bg-white`}
             disabled={isSubmitting}
+            style={{ color: 'rgb(17, 24, 39)' }}
           >
-            <option value="">Select loser...</option>
-            {players.map(player => (
-              <option key={player.id} value={player.id}>
-                {player.name} (Rank #{player.rank})
-              </option>
-            ))}
+            <option value="" style={{ color: 'rgb(17, 24, 39)', backgroundColor: 'white' }}>Select opponent...</option>
+            {(() => {
+              const winner = players.find(p => p.id === winnerId);
+              // Filter players: can only challenge up to 3 ranks above (lower rank number = higher position)
+              const challengablePlayers = winner 
+                ? players.filter(p => 
+                    p.id !== winnerId &&
+                    p.rank < winner.rank && 
+                    (winner.rank - p.rank) <= 3
+                  )
+                : players.filter(p => p.id !== winnerId);
+              
+              return challengablePlayers.map(player => (
+                <option key={player.id} value={player.id} style={{ color: 'rgb(17, 24, 39)', backgroundColor: 'white' }}>
+                  {player.name} (Rank #{player.rank})
+                </option>
+              ));
+            })()}
           </select>
+          {winnerId && (() => {
+            const winner = players.find(p => p.id === winnerId);
+            const challengableCount = winner 
+              ? players.filter(p => 
+                  p.id !== winnerId &&
+                  p.rank < winner.rank && 
+                  (winner.rank - p.rank) <= 3
+                ).length
+              : 0;
+            
+            if (challengableCount === 0) {
+              return (
+                <p className={`${kioskMode ? 'text-lg' : 'text-sm'} text-gray-500 mt-2`}>
+                  No challengable players above this player
+                </p>
+              );
+            }
+            return null;
+          })()}
         </div>
 
         <div>
@@ -157,7 +244,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
             value={loserScore}
             onChange={(e) => setLoserScore(e.target.value)}
             min="0"
-            className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500`}
+            className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-gray-900 bg-white`}
             disabled={isSubmitting}
             required
           />

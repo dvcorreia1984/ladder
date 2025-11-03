@@ -247,7 +247,7 @@ export default function AdminScreen({
                 setPin(e.target.value);
                 setPinError('');
               }}
-              className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+              className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white`}
               placeholder="Enter admin PIN"
               autoFocus
               maxLength={10}
@@ -331,7 +331,7 @@ export default function AdminScreen({
                 value={newPlayerName}
                 onChange={(e) => setNewPlayerName(e.target.value)}
                 placeholder="Player name"
-                className={`${inputSize} flex-1 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                className={`${inputSize} flex-1 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white`}
                 required
               />
               <button
@@ -387,7 +387,7 @@ export default function AdminScreen({
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className={`${inputSize} flex-1 border-2 border-blue-300 rounded-lg`}
+                        className={`${inputSize} flex-1 border-2 border-blue-300 rounded-lg text-gray-900 bg-white`}
                         autoFocus
                       />
                       <button
@@ -444,7 +444,7 @@ export default function AdminScreen({
                 value={adminPin}
                 onChange={(e) => setAdminPin(e.target.value)}
                 placeholder="New PIN (min 4 characters)"
-                className={`${inputSize} flex-1 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                className={`${inputSize} flex-1 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white`}
                 minLength={4}
               />
               <button

@@ -74,6 +74,24 @@ Click "Export CSV" in the Admin panel to download all players as a CSV file.
 ### Import
 Click "Import CSV" and select a CSV file with a "Name" column. Each row will create a new player.
 
+## Testing the Ranking System
+
+To verify that the ranking system works correctly:
+
+1. Open the app in your browser
+2. Go to the **Ladder** screen
+3. Find a player ranked #2 or lower (e.g., Rank #5)
+4. Click the **Challenge** button next to a higher-ranked player (e.g., Rank #2)
+5. Enter the scores (winner score must be higher)
+6. Click **Record Match**
+7. The modal will close and the ladder will refresh
+8. Verify that:
+   - The winner now has the loser's old rank
+   - The loser moved down by 1 position
+   - All players between the old positions shifted down by 1
+
+Alternatively, you can use the **Record Match** tab to record a match and see the same ranking updates apply.
+
 ## Deployment
 
 The app can be deployed to:

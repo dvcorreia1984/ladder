@@ -43,8 +43,8 @@ export default function Home() {
     }
   };
 
-  const handleMatchRecorded = () => {
-    loadData();
+  const handleMatchRecorded = async () => {
+    await loadData();
   };
 
   const handleToggleKioskMode = () => {
@@ -135,6 +135,7 @@ export default function Home() {
             onChallenge={(player1, player2) => {
               setCurrentScreen('record');
             }}
+            onMatchRecorded={handleMatchRecorded}
             kioskMode={kioskMode}
           />
         )}

@@ -115,56 +115,22 @@ export async function createMatch(
 }
 
 // Ladder ranking logic
+// This now delegates to the API route which has server-side access to the service role key
 export async function processMatchResult(match: Match): Promise<void> {
-  const players = await getPlayers();
-  const winner = players.find(p => p.id === match.winner_id);
-  const loser = players.find(p => p.id === match.loser_id);
+  const response = await fetch('/api/match', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'processMatchResult',
+      match: match,
+    }),
+  });
 
-  if (!winner || !loser) {
-    throw new Error('Winner or loser not found');
-  }
-
-  // Rule: If lower-ranked player beats higher-ranked player,
-  // winner takes higher rank, loser moves one place down
-  if (winner.rank > loser.rank) {
-    // Winner was lower ranked - swap their positions
-    const winnerOldRank = winner.rank;
-    const loserOldRank = loser.rank;
-    
-    // Use anon key for ranking updates (allowed by RLS)
-    // Winner takes loser's rank
-    const { error: winnerError } = await supabase
-      .from('players')
-      .update({ rank: loserOldRank })
-      .eq('id', winner.id);
-    if (winnerError) throw winnerError;
-    
-    // Loser moves one place down (becomes winner's old rank)
-    const { error: loserError } = await supabase
-      .from('players')
-      .update({ rank: winnerOldRank })
-      .eq('id', loser.id);
-    if (loserError) throw loserError;
-    
-    // If there are players between the old positions, shift them
-    const playersBetween = players.filter(
-      p => p.id !== winner.id && 
-           p.id !== loser.id && 
-           p.rank < loserOldRank && 
-           p.rank > winnerOldRank
-    );
-    
-    // Shift players down by 1
-    for (const player of playersBetween) {
-      const { error } = await supabase
-        .from('players')
-        .update({ rank: player.rank + 1 })
-        .eq('id', player.id);
-      if (error) throw error;
-    }
-  } else {
-    // Winner was already higher ranked - no change needed
-    // But we still record the match for history
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to process match result');
   }
 }
 

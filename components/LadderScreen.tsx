@@ -1,14 +1,19 @@
 'use client';
 
+import { useState } from 'react';
 import { Player } from '@/types';
+import ChallengeModal from './ChallengeModal';
 
 interface LadderScreenProps {
   players: Player[];
   onChallenge: (player1: Player, player2: Player) => void;
+  onMatchRecorded: () => Promise<void>;
   kioskMode: boolean;
 }
 
-export default function LadderScreen({ players, onChallenge, kioskMode }: LadderScreenProps) {
+export default function LadderScreen({ players, onChallenge, onMatchRecorded, kioskMode }: LadderScreenProps) {
+  const [selectedChallenger, setSelectedChallenger] = useState<Player | null>(null);
+  const [selectedTarget, setSelectedTarget] = useState<Player | null>(null);
   const getRankEmoji = (rank: number) => {
     if (rank === 1) return '🥇';
     if (rank === 2) return '🥈';
@@ -34,7 +39,13 @@ export default function LadderScreen({ players, onChallenge, kioskMode }: Ladder
       ) : (
         <div className="space-y-3">
           {players.map((player, index) => {
-            const nextPlayer = players[index + 1];
+            // Find players that can be challenged: up to 3 ranks above (lower rank number = higher position)
+            const challengablePlayers = players.filter(p => 
+              p.id !== player.id && 
+              p.rank < player.rank && 
+              (player.rank - p.rank) <= 3
+            );
+            
             return (
               <div
                 key={player.id}
@@ -51,18 +62,44 @@ export default function LadderScreen({ players, onChallenge, kioskMode }: Ladder
                   </span>
                 </div>
                 
-                {nextPlayer && (
-                  <button
-                    onClick={() => onChallenge(player, nextPlayer)}
-                    className={`${buttonSize} bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
-                  >
-                    Challenge {nextPlayer.name}
-                  </button>
-                )}
+                <div className="flex gap-2 flex-wrap">
+                  {challengablePlayers.length > 0 ? (
+                    challengablePlayers.map(targetPlayer => (
+                      <button
+                        key={targetPlayer.id}
+                        onClick={() => {
+                          setSelectedChallenger(player);
+                          setSelectedTarget(targetPlayer);
+                        }}
+                        className={`${buttonSize} bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
+                      >
+                        Challenge #{targetPlayer.rank} {targetPlayer.name}
+                      </button>
+                    ))
+                  ) : (
+                    <span className={`${textSize} text-gray-500 italic`}>
+                      No challenges available
+                    </span>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
+      )}
+
+      {/* Challenge Modal */}
+      {selectedChallenger && selectedTarget && (
+        <ChallengeModal
+          challenger={selectedChallenger}
+          target={selectedTarget}
+          onClose={() => {
+            setSelectedChallenger(null);
+            setSelectedTarget(null);
+          }}
+          onMatchRecorded={onMatchRecorded}
+          kioskMode={kioskMode}
+        />
       )}
     </div>
   );
