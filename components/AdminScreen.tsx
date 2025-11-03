@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Player } from '@/types';
+import { useI18n } from '@/lib/i18n/context';
 import {
   createPlayer,
   updatePlayer,
@@ -27,6 +28,7 @@ export default function AdminScreen({
   onAuthenticate,
   kioskMode,
 }: AdminScreenProps) {
+  const { t } = useI18n();
   const [pin, setPin] = useState('');
   const [adminPin, setAdminPin] = useState<string>('');
   const [pinError, setPinError] = useState('');
@@ -67,11 +69,11 @@ export default function AdminScreen({
         onAuthenticate(true);
         setPin('');
       } else {
-        setPinError('Incorrect PIN');
+        setPinError(t('adminIncorrectPin'));
         setPin('');
       }
     } catch (error) {
-      setPinError('Error verifying PIN');
+      setPinError(t('adminErrorPinVerify'));
     }
   };
 
@@ -84,18 +86,18 @@ export default function AdminScreen({
   const handleCreatePlayer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPlayerName.trim()) {
-      setMessage({ type: 'error', text: 'Player name is required' });
+      setMessage({ type: 'error', text: t('adminErrorNameRequired') });
       return;
     }
 
     try {
       await createPlayer(newPlayerName.trim());
       setNewPlayerName('');
-      setMessage({ type: 'success', text: 'Player created successfully' });
+      setMessage({ type: 'success', text: t('adminPlayerCreated') });
       onDataChanged();
       setTimeout(() => setMessage(null), 3000);
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to create player' });
+      setMessage({ type: 'error', text: error.message || t('adminErrorGeneric').replace('{action}', 'create player') });
       setTimeout(() => setMessage(null), 5000);
     }
   };
@@ -107,7 +109,7 @@ export default function AdminScreen({
 
   const handleUpdatePlayer = async () => {
     if (!editingPlayer || !editName.trim()) {
-      setMessage({ type: 'error', text: 'Player name is required' });
+      setMessage({ type: 'error', text: t('adminErrorNameRequired') });
       return;
     }
 
@@ -115,43 +117,43 @@ export default function AdminScreen({
       await updatePlayer(editingPlayer.id, { name: editName.trim() });
       setEditingPlayer(null);
       setEditName('');
-      setMessage({ type: 'success', text: 'Player updated successfully' });
+      setMessage({ type: 'success', text: t('adminPlayerUpdated') });
       onDataChanged();
       setTimeout(() => setMessage(null), 3000);
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to update player' });
+      setMessage({ type: 'error', text: error.message || t('adminErrorGeneric').replace('{action}', 'update player') });
       setTimeout(() => setMessage(null), 5000);
     }
   };
 
   const handleDeletePlayer = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this player? This will also delete their match history.')) {
+    if (!confirm(t('adminConfirmDelete'))) {
       return;
     }
 
     try {
       await deletePlayer(id);
-      setMessage({ type: 'success', text: 'Player deleted successfully' });
+      setMessage({ type: 'success', text: t('adminPlayerDeleted') });
       onDataChanged();
       setTimeout(() => setMessage(null), 3000);
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to delete player' });
+      setMessage({ type: 'error', text: error.message || t('adminErrorGeneric').replace('{action}', 'delete player') });
       setTimeout(() => setMessage(null), 5000);
     }
   };
 
   const handleSeedPlayers = async () => {
-    if (!confirm('This will add 8 sample players. Continue?')) {
+    if (!confirm(t('adminConfirmSeed'))) {
       return;
     }
 
     try {
       await seedSamplePlayers();
-      setMessage({ type: 'success', text: 'Sample players added successfully' });
+      setMessage({ type: 'success', text: t('adminSeedSuccess') });
       onDataChanged();
       setTimeout(() => setMessage(null), 3000);
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to seed players' });
+      setMessage({ type: 'error', text: error.message || t('adminErrorGeneric').replace('{action}', 'seed players') });
       setTimeout(() => setMessage(null), 5000);
     }
   };
@@ -189,11 +191,11 @@ export default function AdminScreen({
             }
           }
 
-          setMessage({ type: 'success', text: `Imported ${importedCount} players successfully` });
+          setMessage({ type: 'success', text: t('adminImportSuccess').replace('{count}', String(importedCount)) });
           onDataChanged();
           setTimeout(() => setMessage(null), 3000);
         } catch (error: any) {
-          setMessage({ type: 'error', text: error.message || 'Failed to import players' });
+          setMessage({ type: 'error', text: error.message || t('adminErrorGeneric').replace('{action}', 'import players') });
           setTimeout(() => setMessage(null), 5000);
         } finally {
           if (fileInputRef.current) {
@@ -210,16 +212,16 @@ export default function AdminScreen({
 
   const handleUpdateAdminPin = async () => {
     if (!adminPin || adminPin.length < 4) {
-      setMessage({ type: 'error', text: 'PIN must be at least 4 characters' });
+      setMessage({ type: 'error', text: t('adminErrorPinLength') });
       return;
     }
 
     try {
       await setSetting('admin_pin', adminPin);
-      setMessage({ type: 'success', text: 'Admin PIN updated successfully' });
+      setMessage({ type: 'success', text: t('adminPinUpdated') });
       setTimeout(() => setMessage(null), 3000);
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to update PIN' });
+      setMessage({ type: 'error', text: error.message || t('adminErrorGeneric').replace('{action}', 'update PIN') });
       setTimeout(() => setMessage(null), 5000);
     }
   };
@@ -233,12 +235,12 @@ export default function AdminScreen({
     return (
       <div className="bg-white rounded-lg shadow-xl p-8 max-w-md mx-auto">
         <h1 className={`${headerSize} font-bold mb-6 text-center text-gray-800`}>
-          Admin Access
+          {t('adminAccess')}
         </h1>
         <form onSubmit={handlePinSubmit} className="space-y-4">
           <div>
             <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
-              Enter PIN
+              {t('adminEnterPin')}
             </label>
             <input
               type="password"
@@ -248,7 +250,7 @@ export default function AdminScreen({
                 setPinError('');
               }}
               className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white`}
-              placeholder="Enter admin PIN"
+              placeholder={t('adminEnterPin')}
               autoFocus
               maxLength={10}
             />
@@ -260,11 +262,11 @@ export default function AdminScreen({
             type="submit"
             className={`${buttonSize} w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition-all active:scale-95`}
           >
-            Authenticate
+            {t('adminAuthenticate')}
           </button>
         </form>
         <p className={`mt-4 text-center ${kioskMode ? 'text-lg' : 'text-sm'} text-gray-500`}>
-          Default PIN: 1234
+          {t('adminDefaultPin')}
         </p>
       </div>
     );
@@ -273,12 +275,12 @@ export default function AdminScreen({
   return (
     <div className="bg-white rounded-lg shadow-xl p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className={`${headerSize} font-bold text-gray-800`}>Admin Panel</h1>
+        <h1 className={`${headerSize} font-bold text-gray-800`}>{t('adminTitle')}</h1>
         <button
           onClick={handleLogout}
           className={`${buttonSize} bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
         >
-          Logout
+          {t('adminLogout')}
         </button>
       </div>
 
@@ -304,7 +306,7 @@ export default function AdminScreen({
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Players
+          {t('adminPlayers')}
         </button>
         <button
           onClick={() => setActiveTab('settings')}
@@ -314,7 +316,7 @@ export default function AdminScreen({
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Settings
+          {t('adminSettings')}
         </button>
       </div>
 
@@ -323,14 +325,14 @@ export default function AdminScreen({
         <div className="space-y-6">
           <div className="bg-gray-50 p-4 rounded-lg">
             <h2 className={`${kioskMode ? 'text-3xl' : 'text-xl'} font-bold mb-4 text-gray-800`}>
-              Add New Player
+              {t('adminAddNewPlayer')}
             </h2>
             <form onSubmit={handleCreatePlayer} className="flex gap-2">
               <input
                 type="text"
                 value={newPlayerName}
                 onChange={(e) => setNewPlayerName(e.target.value)}
-                placeholder="Player name"
+                placeholder={t('adminPlayerName')}
                 className={`${inputSize} flex-1 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white`}
                 required
               />
@@ -338,7 +340,7 @@ export default function AdminScreen({
                 type="submit"
                 className={`${buttonSize} bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
               >
-                Add
+                {t('adminAdd')}
               </button>
             </form>
           </div>
@@ -348,10 +350,10 @@ export default function AdminScreen({
               onClick={handleExportCSV}
               className={`${buttonSize} bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
             >
-              Export CSV
+              {t('adminExportCSV')}
             </button>
             <label className={`${buttonSize} bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg shadow-md transition-all active:scale-95 cursor-pointer text-center`}>
-              Import CSV
+              {t('adminImportCSV')}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -364,13 +366,13 @@ export default function AdminScreen({
               onClick={handleSeedPlayers}
               className={`${buttonSize} bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
             >
-              Seed Sample Players
+              {t('adminSeedPlayers')}
             </button>
           </div>
 
           <div>
             <h2 className={`${kioskMode ? 'text-3xl' : 'text-xl'} font-bold mb-4 text-gray-800`}>
-              Current Players ({players.length})
+              {t('adminCurrentPlayers')} ({players.length})
             </h2>
             <div className="space-y-2">
               {players.map((player) => (
@@ -381,7 +383,7 @@ export default function AdminScreen({
                   {editingPlayer?.id === player.id ? (
                     <div className="flex items-center gap-2 flex-1">
                       <span className={`${textSize} font-bold text-gray-600 w-12`}>
-                        #{player.rank}
+                        {t('adminRank')}{player.rank}
                       </span>
                       <input
                         type="text"
@@ -394,32 +396,32 @@ export default function AdminScreen({
                         onClick={handleUpdatePlayer}
                         className={`${buttonSize} bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg`}
                       >
-                        Save
+                        {t('adminSave')}
                       </button>
                       <button
                         onClick={() => setEditingPlayer(null)}
                         className={`${buttonSize} bg-gray-500 hover:bg-gray-600 text-white font-bold rounded-lg`}
                       >
-                        Cancel
+                        {t('adminCancel')}
                       </button>
                     </div>
                   ) : (
                     <>
                       <span className={`${textSize} font-semibold text-gray-800`}>
-                        #{player.rank} - {player.name}
+                        {t('adminRank')}{player.rank} - {player.name}
                       </span>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleEditPlayer(player)}
                           className={`${buttonSize} bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg`}
                         >
-                          Edit
+                          {t('adminEdit')}
                         </button>
                         <button
                           onClick={() => handleDeletePlayer(player.id)}
                           className={`${buttonSize} bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg`}
                         >
-                          Delete
+                          {t('adminDelete')}
                         </button>
                       </div>
                     </>
@@ -436,14 +438,14 @@ export default function AdminScreen({
         <div className="space-y-6">
           <div className="bg-gray-50 p-4 rounded-lg">
             <h2 className={`${kioskMode ? 'text-3xl' : 'text-xl'} font-bold mb-4 text-gray-800`}>
-              Admin PIN
+              {t('adminPinHeading')}
             </h2>
             <div className="flex gap-2">
               <input
                 type="password"
                 value={adminPin}
                 onChange={(e) => setAdminPin(e.target.value)}
-                placeholder="New PIN (min 4 characters)"
+                placeholder={t('adminPinPlaceholder')}
                 className={`${inputSize} flex-1 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white`}
                 minLength={4}
               />
@@ -451,7 +453,7 @@ export default function AdminScreen({
                 onClick={handleUpdateAdminPin}
                 className={`${buttonSize} bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
               >
-                Update PIN
+                {t('adminUpdatePin')}
               </button>
             </div>
           </div>

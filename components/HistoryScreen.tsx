@@ -1,6 +1,7 @@
 'use client';
 
 import { Match } from '@/types';
+import { useI18n } from '@/lib/i18n/context';
 import { format } from 'date-fns';
 
 interface HistoryScreenProps {
@@ -9,6 +10,7 @@ interface HistoryScreenProps {
 }
 
 export default function HistoryScreen({ matches, kioskMode }: HistoryScreenProps) {
+  const { t } = useI18n();
   const textSize = kioskMode ? 'text-2xl' : 'text-base';
   const headerSize = kioskMode ? 'text-4xl' : 'text-2xl';
   const rowPadding = kioskMode ? 'p-5' : 'p-3';
@@ -16,22 +18,22 @@ export default function HistoryScreen({ matches, kioskMode }: HistoryScreenProps
   return (
     <div className="bg-white rounded-lg shadow-xl p-6">
       <h1 className={`${headerSize} font-bold mb-6 text-center text-gray-800`}>
-        Match History
+        {t('historyTitle')}
       </h1>
 
       {matches.length === 0 ? (
         <div className="text-center py-12">
-          <p className={`${textSize} text-gray-500`}>No matches recorded yet.</p>
+          <p className={`${textSize} text-gray-500`}>{t('historyNoMatches')}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-100">
-                <th className={`${rowPadding} ${textSize} text-left font-bold text-gray-700`}>Date</th>
-                <th className={`${rowPadding} ${textSize} text-left font-bold text-gray-700`}>Winner</th>
-                <th className={`${rowPadding} ${textSize} text-left font-bold text-gray-700`}>Score</th>
-                <th className={`${rowPadding} ${textSize} text-left font-bold text-gray-700`}>Loser</th>
+                <th className={`${rowPadding} ${textSize} text-left font-bold text-gray-700`}>{t('historyDate')}</th>
+                <th className={`${rowPadding} ${textSize} text-left font-bold text-gray-700`}>{t('historyWinner')}</th>
+                <th className={`${rowPadding} ${textSize} text-left font-bold text-gray-700`}>{t('historyScore')}</th>
+                <th className={`${rowPadding} ${textSize} text-left font-bold text-gray-700`}>{t('historyLoser')}</th>
               </tr>
             </thead>
             <tbody>

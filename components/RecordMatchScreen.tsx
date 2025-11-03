@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Player } from '@/types';
+import { useI18n } from '@/lib/i18n/context';
 import { createMatch, processMatchResult } from '@/lib/api';
 
 interface RecordMatchScreenProps {
@@ -11,6 +12,7 @@ interface RecordMatchScreenProps {
 }
 
 export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode }: RecordMatchScreenProps) {
+  const { t } = useI18n();
   const [winnerId, setWinnerId] = useState<string>('');
   const [loserId, setLoserId] = useState<string>('');
   const [winnerScore, setWinnerScore] = useState<string>('');
@@ -65,12 +67,12 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
     setSuccess(false);
 
     if (!winnerId || !loserId) {
-      setError('Please select both winner and loser');
+      setError(t('recordErrorSelectBoth'));
       return;
     }
 
     if (winnerId === loserId) {
-      setError('Winner and loser must be different players');
+      setError(t('recordErrorDifferent'));
       return;
     }
 
@@ -83,12 +85,12 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
       // So loser should have a lower rank number (higher position)
       // And the difference should be at most 3
       if (loser.rank > winner.rank) {
-        setError('You cannot challenge players ranked below you');
+        setError(t('recordErrorCannotChallengeBelow'));
         return;
       }
       
       if (winner.rank - loser.rank > 3) {
-        setError('You can only challenge players up to 3 ranks above you');
+        setError(t('recordErrorMaxRank'));
         return;
       }
     }
@@ -97,7 +99,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
     const lScore = parseInt(loserScore);
 
     if (isNaN(wScore) || isNaN(lScore) || wScore <= lScore) {
-      setError('Winner score must be higher than loser score');
+      setError(t('recordErrorScoreInvalid'));
       return;
     }
 
@@ -133,7 +135,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
   return (
     <div className="bg-white rounded-lg shadow-xl p-6">
       <h1 className={`${kioskMode ? 'text-5xl' : 'text-3xl'} font-bold mb-6 text-center text-gray-800`}>
-        Record Match Result
+        {t('recordTitle')}
       </h1>
 
       <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
@@ -145,13 +147,13 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
 
         {success && (
           <div className={`${kioskMode ? 'p-4 text-xl' : 'p-3 text-base'} bg-green-100 text-green-700 rounded-lg border border-green-300`}>
-            Match recorded successfully! Updating ladder...
+            {t('recordSuccess')}
           </div>
         )}
 
         <div>
           <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
-            Winner
+            {t('recordWinner')}
           </label>
           <select
             value={winnerId}
@@ -160,7 +162,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
             disabled={isSubmitting}
             style={{ color: 'rgb(17, 24, 39)' }}
           >
-            <option value="" style={{ color: 'rgb(17, 24, 39)', backgroundColor: 'white' }}>Select winner...</option>
+            <option value="" style={{ color: 'rgb(17, 24, 39)', backgroundColor: 'white' }}>{t('recordSelectWinner')}</option>
             {players.map(player => (
               <option key={player.id} value={player.id} style={{ color: 'rgb(17, 24, 39)', backgroundColor: 'white' }}>
                 {player.name} (Rank #{player.rank})
@@ -171,7 +173,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
 
         <div>
           <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
-            Winner Score
+            {t('recordWinnerScore')}
           </label>
           <input
             type="number"
@@ -186,7 +188,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
 
         <div>
           <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
-            Opponent
+            {t('recordOpponent')}
           </label>
           <select
             value={loserId}
@@ -195,7 +197,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
             disabled={isSubmitting}
             style={{ color: 'rgb(17, 24, 39)' }}
           >
-            <option value="" style={{ color: 'rgb(17, 24, 39)', backgroundColor: 'white' }}>Select opponent...</option>
+            <option value="" style={{ color: 'rgb(17, 24, 39)', backgroundColor: 'white' }}>{t('recordSelectOpponent')}</option>
             {(() => {
               const winner = players.find(p => p.id === winnerId);
               // Filter players: can only challenge up to 3 ranks above (lower rank number = higher position)
@@ -227,7 +229,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
             if (challengableCount === 0) {
               return (
                 <p className={`${kioskMode ? 'text-lg' : 'text-sm'} text-gray-500 mt-2`}>
-                  No challengable players above this player
+                  {t('recordNoChallengable')}
                 </p>
               );
             }
@@ -237,7 +239,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
 
         <div>
           <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
-            Loser Score
+            {t('recordLoserScore')}
           </label>
           <input
             type="number"
@@ -255,7 +257,7 @@ export default function RecordMatchScreen({ players, onMatchRecorded, kioskMode 
           disabled={isSubmitting}
           className={`${buttonSize} w-full bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
         >
-          {isSubmitting ? 'Recording...' : 'Record Match'}
+          {isSubmitting ? t('recordRecording') : t('recordMatch')}
         </button>
       </form>
     </div>

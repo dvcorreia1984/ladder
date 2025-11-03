@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Player } from '@/types';
+import { useI18n } from '@/lib/i18n/context';
 import { createMatch, processMatchResult } from '@/lib/api';
 
 interface ChallengeModalProps {
@@ -19,6 +20,7 @@ export default function ChallengeModal({
   onMatchRecorded,
   kioskMode,
 }: ChallengeModalProps) {
+  const { t } = useI18n();
   const [winnerScore, setWinnerScore] = useState<string>('');
   const [loserScore, setLoserScore] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,18 +51,18 @@ export default function ChallengeModal({
     const lScore = parseInt(loserScore);
 
     if (isNaN(wScore) || isNaN(lScore) || wScore <= lScore) {
-      setError('Winner score must be higher than loser score');
+      setError(t('challengeErrorScore'));
       return;
     }
 
     // Validate challenge restriction
     if (challenger.rank <= target.rank) {
-      setError('Invalid challenge: challenger must have a higher rank number than target');
+      setError(t('challengeErrorInvalid'));
       return;
     }
     
     if (challenger.rank - target.rank > 3) {
-      setError('You can only challenge players up to 3 ranks above you');
+      setError(t('challengeErrorMaxRank'));
       return;
     }
 
@@ -98,7 +100,7 @@ export default function ChallengeModal({
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className={`${headingSize} font-bold text-gray-800`}>
-              Record Challenge Result
+              {t('challengeTitle')}
             </h2>
             <button
               onClick={onClose}
@@ -119,7 +121,7 @@ export default function ChallengeModal({
 
           {success && (
             <div className={`${kioskMode ? 'p-4 text-xl' : 'p-3 text-base'} bg-green-100 text-green-700 rounded-lg border border-green-300`}>
-              Match recorded successfully! Updating ladder...
+              {t('challengeSuccess')}
             </div>
           )}
 
@@ -128,7 +130,7 @@ export default function ChallengeModal({
               🏆 {winner.name}
             </p>
             <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
-              Winner Score
+              {t('challengeWinnerScore')}
             </label>
             <input
               type="number"
@@ -147,7 +149,7 @@ export default function ChallengeModal({
               😢 {loser.name}
             </p>
             <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
-              Loser Score
+              {t('challengeLoserScore')}
             </label>
             <input
               type="number"
@@ -167,14 +169,14 @@ export default function ChallengeModal({
               disabled={isSubmitting}
               className={`${buttonSize} flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              Cancel
+              {t('challengeCancel')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className={`${buttonSize} flex-1 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              {isSubmitting ? 'Recording...' : 'Record Match'}
+              {isSubmitting ? t('challengeRecording') : t('challengeRecordMatch')}
             </button>
           </div>
         </form>
