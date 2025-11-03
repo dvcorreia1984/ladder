@@ -12,7 +12,7 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('af');
 
   useEffect(() => {
     // Load language from localStorage
@@ -28,7 +28,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   };
 
   const t = (key: keyof typeof translations.en): string => {
-    return translations[language][key] || translations.en[key] || key;
+    return translations[language][key] || translations.af[key] || key;
   };
 
   return (
