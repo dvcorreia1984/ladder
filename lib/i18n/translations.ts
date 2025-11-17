@@ -92,6 +92,41 @@ export interface Translations {
   challengeErrorScore: string;
   challengeErrorInvalid: string;
   challengeErrorMaxRank: string;
+
+  // Payment
+  paymentTitle: string;
+  paymentAmount: string;
+  paymentDescription: string;
+  paymentDescriptionPlaceholder: string;
+  paymentFirstName: string;
+  paymentLastName: string;
+  paymentEmail: string;
+  paymentCellNumber: string;
+  paymentCancel: string;
+  paymentProceed: string;
+  paymentProcessing: string;
+  paymentFor: string;
+  paymentSuccess: string;
+  paymentThankYou: string;
+  paymentTransactionId: string;
+  paymentPending: string;
+  paymentPendingMessage: string;
+  paymentFailed: string;
+  paymentFailedMessage: string;
+  paymentCancelled: string;
+  paymentCancelledMessage: string;
+  paymentReturnHome: string;
+  paymentChecking: string;
+  paymentErrorInvalidAmount: string;
+  paymentErrorInvalidEmail: string;
+  paymentErrorGeneric: string;
+  adminPaymentSettings: string;
+  adminPayfastMerchantId: string;
+  adminPayfastMerchantKey: string;
+  adminPayfastPassphrase: string;
+  adminPaymentSettingsHeading: string;
+  adminPaymentSettingsSaved: string;
+  adminPaymentSettingsError: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -187,6 +222,41 @@ export const translations: Record<Language, Translations> = {
     challengeErrorScore: 'Winner score must be higher than loser score',
     challengeErrorInvalid: 'Invalid challenge: challenger must have a higher rank number than target',
     challengeErrorMaxRank: 'You can only challenge players up to 3 ranks above you',
+
+    // Payment
+    paymentTitle: '💳 Make Payment',
+    paymentAmount: 'Amount',
+    paymentDescription: 'Description',
+    paymentDescriptionPlaceholder: 'Payment description (optional)',
+    paymentFirstName: 'First Name',
+    paymentLastName: 'Last Name',
+    paymentEmail: 'Email Address',
+    paymentCellNumber: 'Cell Number',
+    paymentCancel: 'Cancel',
+    paymentProceed: 'Proceed to Payfast',
+    paymentProcessing: 'Processing...',
+    paymentFor: 'Payment for',
+    paymentSuccess: 'Payment Successful!',
+    paymentThankYou: 'Thank you for your payment.',
+    paymentTransactionId: 'Transaction ID',
+    paymentPending: 'Payment Pending',
+    paymentPendingMessage: 'Your payment is being processed. Please check back later.',
+    paymentFailed: 'Payment Failed',
+    paymentFailedMessage: 'Your payment could not be processed. Please try again.',
+    paymentCancelled: 'Payment Cancelled',
+    paymentCancelledMessage: 'You cancelled the payment. No charges were made.',
+    paymentReturnHome: 'Return to Home',
+    paymentChecking: 'Checking payment status...',
+    paymentErrorInvalidAmount: 'Please enter a valid amount greater than 0',
+    paymentErrorInvalidEmail: 'Please enter a valid email address',
+    paymentErrorGeneric: 'An error occurred processing your payment. Please try again.',
+    adminPaymentSettings: 'Payment Settings',
+    adminPayfastMerchantId: 'Payfast Merchant ID',
+    adminPayfastMerchantKey: 'Payfast Merchant Key',
+    adminPayfastPassphrase: 'Payfast Passphrase (optional)',
+    adminPaymentSettingsHeading: 'Payfast Configuration',
+    adminPaymentSettingsSaved: 'Payment settings saved successfully',
+    adminPaymentSettingsError: 'Failed to save payment settings',
   },
   af: {
     // Navigation
@@ -280,6 +350,41 @@ export const translations: Record<Language, Translations> = {
     challengeErrorScore: 'Wenner telling moet hoër as verloorder telling wees',
     challengeErrorInvalid: 'Ongeldige uitdaging: uitdager moet \'n hoër rangnommer as teiken hê',
     challengeErrorMaxRank: 'Jy kan slegs spelers tot 3 posisies bo jou uitdaag',
+
+    // Payment
+    paymentTitle: '💳 Maak Betaling',
+    paymentAmount: 'Bedrag',
+    paymentDescription: 'Beskrywing',
+    paymentDescriptionPlaceholder: 'Betalingsbeskrywing (opsioneel)',
+    paymentFirstName: 'Voornaam',
+    paymentLastName: 'Van',
+    paymentEmail: 'E-pos Adres',
+    paymentCellNumber: 'Sel Nommer',
+    paymentCancel: 'Kanselleer',
+    paymentProceed: 'Gaan na Payfast',
+    paymentProcessing: 'Verwerk...',
+    paymentFor: 'Betaling vir',
+    paymentSuccess: 'Betaling Suksesvol!',
+    paymentThankYou: 'Dankie vir jou betaling.',
+    paymentTransactionId: 'Transaksie ID',
+    paymentPending: 'Betaling Hangend',
+    paymentPendingMessage: 'Jou betaling word verwerk. Kyk asseblief later weer.',
+    paymentFailed: 'Betaling Misluk',
+    paymentFailedMessage: 'Jou betaling kon nie verwerk word nie. Probeer asseblief weer.',
+    paymentCancelled: 'Betaling Gekanselleer',
+    paymentCancelledMessage: 'Jy het die betaling gekanselleer. Geen gelde is gehef nie.',
+    paymentReturnHome: 'Keer Terug na Tuis',
+    paymentChecking: 'Kontroleer betalingsstatus...',
+    paymentErrorInvalidAmount: 'Voer asseblief \'n geldige bedrag groter as 0 in',
+    paymentErrorInvalidEmail: 'Voer asseblief \'n geldige e-pos adres in',
+    paymentErrorGeneric: '\'n Fout het voorgekom met die verwerking van jou betaling. Probeer asseblief weer.',
+    adminPaymentSettings: 'Betalingsinstellings',
+    adminPayfastMerchantId: 'Payfast Handelaar ID',
+    adminPayfastMerchantKey: 'Payfast Handelaar Sleutel',
+    adminPayfastPassphrase: 'Payfast Wagwoord (opsioneel)',
+    adminPaymentSettingsHeading: 'Payfast Konfigurasie',
+    adminPaymentSettingsSaved: 'Betalingsinstellings suksesvol gestoor',
+    adminPaymentSettingsError: 'Kon nie betalingsinstellings stoor nie',
   },
 };
 
