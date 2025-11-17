@@ -186,3 +186,93 @@ export async function seedSamplePlayers(): Promise<void> {
   
   if (error) throw error;
 }
+
+// Payments
+export async function initiatePayment(
+  playerId: string,
+  amount: number,
+  options?: {
+    currency?: string;
+    description?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    cellNumber?: string;
+  }
+): Promise<{ payment_id: string; payfast_url: string; payfast_data: Record<string, string> }> {
+  const response = await fetch('/api/payment', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'initiate',
+      player_id: playerId,
+      amount,
+      currency: options?.currency || 'ZAR',
+      description: options?.description,
+      first_name: options?.firstName,
+      last_name: options?.lastName,
+      email: options?.email,
+      cell_number: options?.cellNumber,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to initiate payment');
+  }
+
+  const data = await response.json();
+  if (!data.success) {
+    throw new Error(data.error || 'Failed to initiate payment');
+  }
+
+  return {
+    payment_id: data.payment_id,
+    payfast_url: data.payfast_url,
+    payfast_data: data.payfast_data,
+  };
+}
+
+export async function getPaymentStatus(paymentId: string): Promise<any> {
+  const response = await fetch('/api/payment', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'status',
+      payment_id: paymentId,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to get payment status');
+  }
+
+  const data = await response.json();
+  if (!data.success) {
+    throw new Error(data.error || 'Failed to get payment status');
+  }
+
+  return data.payment;
+}
+
+export async function getPayments(playerId?: string): Promise<any[]> {
+  const admin = getSupabaseAdmin();
+  let query = admin
+    .from('payments')
+    .select('*, player:players(*)')
+    .order('created_at', { ascending: false });
+
+  if (playerId) {
+    query = query.eq('player_id', playerId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) throw error;
+  return data || [];
+}

@@ -34,6 +34,11 @@ export default function AdminScreen({
   const [pinError, setPinError] = useState('');
   const [activeTab, setActiveTab] = useState<'players' | 'settings'>('players');
   
+  // Payment settings
+  const [payfastMerchantId, setPayfastMerchantId] = useState('');
+  const [payfastMerchantKey, setPayfastMerchantKey] = useState('');
+  const [payfastPassphrase, setPayfastPassphrase] = useState('');
+  
   // Player management
   const [newPlayerName, setNewPlayerName] = useState('');
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
@@ -45,6 +50,7 @@ export default function AdminScreen({
   useEffect(() => {
     if (isAuthenticated) {
       loadAdminPin();
+      loadPaymentSettings();
     }
   }, [isAuthenticated]);
 
@@ -54,6 +60,36 @@ export default function AdminScreen({
       setAdminPin(pin || '1234');
     } catch (error) {
       console.error('Error loading admin PIN:', error);
+    }
+  };
+
+  const loadPaymentSettings = async () => {
+    try {
+      const [merchantId, merchantKey, passphrase] = await Promise.all([
+        getSetting('payfast_merchant_id'),
+        getSetting('payfast_merchant_key'),
+        getSetting('payfast_passphrase'),
+      ]);
+      setPayfastMerchantId(merchantId || '');
+      setPayfastMerchantKey(merchantKey || '');
+      setPayfastPassphrase(passphrase || '');
+    } catch (error) {
+      console.error('Error loading payment settings:', error);
+    }
+  };
+
+  const handleSavePaymentSettings = async () => {
+    try {
+      await Promise.all([
+        setSetting('payfast_merchant_id', payfastMerchantId),
+        setSetting('payfast_merchant_key', payfastMerchantKey),
+        setSetting('payfast_passphrase', payfastPassphrase),
+      ]);
+      setMessage({ type: 'success', text: t('adminPaymentSettingsSaved') });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || t('adminPaymentSettingsError') });
+      setTimeout(() => setMessage(null), 5000);
     }
   };
 
@@ -454,6 +490,56 @@ export default function AdminScreen({
                 className={`${buttonSize} bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
               >
                 {t('adminUpdatePin')}
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h2 className={`${kioskMode ? 'text-3xl' : 'text-xl'} font-bold mb-4 text-gray-800`}>
+              {t('adminPaymentSettingsHeading')}
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
+                  {t('adminPayfastMerchantId')}
+                </label>
+                <input
+                  type="text"
+                  value={payfastMerchantId}
+                  onChange={(e) => setPayfastMerchantId(e.target.value)}
+                  placeholder={t('adminPayfastMerchantId')}
+                  className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white`}
+                />
+              </div>
+              <div>
+                <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
+                  {t('adminPayfastMerchantKey')}
+                </label>
+                <input
+                  type="password"
+                  value={payfastMerchantKey}
+                  onChange={(e) => setPayfastMerchantKey(e.target.value)}
+                  placeholder={t('adminPayfastMerchantKey')}
+                  className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white`}
+                />
+              </div>
+              <div>
+                <label className={`${textSize} font-semibold text-gray-700 block mb-2`}>
+                  {t('adminPayfastPassphrase')}
+                </label>
+                <input
+                  type="password"
+                  value={payfastPassphrase}
+                  onChange={(e) => setPayfastPassphrase(e.target.value)}
+                  placeholder={t('adminPayfastPassphrase')}
+                  className={`${inputSize} w-full border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white`}
+                />
+              </div>
+              <button
+                onClick={handleSavePaymentSettings}
+                className={`${buttonSize} bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
+              >
+                {t('adminSave')} {t('adminPaymentSettings')}
               </button>
             </div>
           </div>

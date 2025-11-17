@@ -22,3 +22,24 @@ export interface Settings {
   value: string;
   updated_at: string;
 }
+
+export interface Payment {
+  id: string;
+  player_id: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  payment_method: string;
+  transaction_id?: string;
+  payfast_payment_id?: string;
+  created_at: string;
+  updated_at: string;
+  player?: Player;
+}
+
+export interface PaymentRequest {
+  player_id: string;
+  amount: number;
+  currency?: string;
+  description?: string;
+}

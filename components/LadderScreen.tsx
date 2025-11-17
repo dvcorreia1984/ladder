@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Player } from '@/types';
 import { useI18n } from '@/lib/i18n/context';
 import ChallengeModal from './ChallengeModal';
+import PaymentModal from './PaymentModal';
 
 interface LadderScreenProps {
   players: Player[];
@@ -16,6 +17,7 @@ export default function LadderScreen({ players, onChallenge, onMatchRecorded, ki
   const { t } = useI18n();
   const [selectedChallenger, setSelectedChallenger] = useState<Player | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<Player | null>(null);
+  const [selectedPlayerForPayment, setSelectedPlayerForPayment] = useState<Player | null>(null);
   const getRankEmoji = (rank: number) => {
     if (rank === 1) return '🥇';
     if (rank === 2) return '🥈';
@@ -83,6 +85,12 @@ export default function LadderScreen({ players, onChallenge, onMatchRecorded, ki
                       {t('ladderNoChallenges')}
                     </span>
                   )}
+                  <button
+                    onClick={() => setSelectedPlayerForPayment(player)}
+                    className={`${buttonSize} bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-lg shadow-md transition-all active:scale-95`}
+                  >
+                    💳 {t('paymentTitle')}
+                  </button>
                 </div>
               </div>
             );
@@ -100,6 +108,18 @@ export default function LadderScreen({ players, onChallenge, onMatchRecorded, ki
             setSelectedTarget(null);
           }}
           onMatchRecorded={onMatchRecorded}
+          kioskMode={kioskMode}
+        />
+      )}
+
+      {/* Payment Modal */}
+      {selectedPlayerForPayment && (
+        <PaymentModal
+          player={selectedPlayerForPayment}
+          onClose={() => setSelectedPlayerForPayment(null)}
+          onSuccess={() => {
+            setSelectedPlayerForPayment(null);
+          }}
           kioskMode={kioskMode}
         />
       )}
